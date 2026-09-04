@@ -1,0 +1,106 @@
+{
+  "id" : "",
+  "inbounds" : [
+    {
+      "listen" : "127.0.0.1",
+      "port" : 10808,
+      "protocol" : "socks",
+      "settings" : {
+        "auth" : "noauth",
+        "udp" : true
+      },
+      "sniffing" : {
+        "destOverride" : [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "enabled" : true,
+        "routeOnly" : false
+      },
+      "tag" : "socks"
+    }
+  ],
+  "log" : {
+    "access" : "",
+    "dnsLog" : true,
+    "loglevel" : "Warning"
+  },
+  "outbounds" : [
+    {
+      "protocol" : "vless",
+      "settings" : {
+        "address" : "",                                                            // IPv4 of VPS
+        "encryption" : "none",
+        "flow" : "xtls-rprx-vision",
+        "id" : "",                                                                 // uuid
+        "port" : 443
+      },
+      "streamSettings" : {
+        "network" : "tcp",
+        "realitySettings" : {
+          "fingerprint" : "randomized",
+          "publicKey" : "",                                                        // public key
+          "serverName" : "www.nvidia.com",
+          "shortId" : "0123456789abcdef",
+          "spiderX" : ""
+        },
+        "security" : "reality",
+        "tcpSettings" : {
+          "header" : {
+            "type" : "none"
+          }
+        }
+      },
+      "tag" : "proxy"
+    },
+    {
+      "protocol" : "freedom",
+      "settings" : {
+
+      },
+      "tag" : "direct"
+    },
+    {
+      "protocol" : "blackhole",
+      "settings" : {
+        "response" : {
+          "type" : "none"
+        }
+      },
+      "tag" : "block"
+    }
+  ],
+  "remarks" : "VPN",
+  "routing" : {
+    "balancers" : [
+
+    ],
+    "domainStrategy" : "IPIfNonMatch",
+    "rules" : [
+      {
+        "domain" : [
+          "domain:ru",
+          "domain:xn--p1ai",
+          "domain:su",
+          "domain:yandex.net",
+          "domain:yastatic.net"
+        ],
+        "outboundTag" : "direct",
+        "type" : "field"
+      },
+      {
+        "ip" : [
+          "geoip:ru",
+          "geoip:private"
+        ],
+        "outboundTag" : "direct",
+        "type" : "field"
+      }
+    ]
+  },
+  "tun" : {
+    "enable" : true,
+    "mtu" : 1280
+  }
+}
