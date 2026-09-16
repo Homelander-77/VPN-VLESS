@@ -138,7 +138,8 @@ Remove the `//` (comments), they are not part of the JSON standart. Finally impo
 There is no separate config file for Shadowsocks. Most client apps let you add it manually: enter the server IP, port `54321`, method `2022-blake3-aes-128-gcm` and the password from the server config.
 
 ## Routing
-> In the future wiil be new updates with ready configs
+> In the future wiil be new updates with ready configs.
+
 Both client configs use the same routing rules:
 - `.ru`, `.su`, `.рф` domains, Yandex services and Russian IP ranges (`geoip:ru`) → **direct**
 - private networks (`geoip:private`) → **direct**
