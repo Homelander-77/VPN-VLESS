@@ -1,0 +1,65 @@
+{
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 10808,
+      "protocol": "socks",
+      "settings": { "auth": "noauth", "udp": true },
+      "sniffing": {
+        "destOverride": ["http", "tls", "quic"],
+        "enabled": true,
+        "routeOnly": false
+      },
+      "tag": "socks"
+    }
+  ],
+  "log": { "loglevel": "warning" },
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "address": "",                                // your domain
+        "encryption": "none",
+        "id": "",                                     // your uuid
+        "port": 8443
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "",                           // your domain
+          "allowInsecure": false,
+          "fingerprint": "chrome"
+        },
+        "wsSettings": {
+          "path": "/ws",
+          "headers": { "Host": "" }                   // your domain 
+        }
+      },
+      "tag": "proxy"
+    },
+    { "protocol": "freedom", "settings": {}, "tag": "direct" },
+    {
+      "protocol": "blackhole",
+      "settings": { "response": { "type": "none" } },
+      "tag": "block"
+    }
+  ],
+  "remarks": "WS",
+  "routing": {
+    "domainStrategy": "IPIfNonMatch",
+    "rules": [
+      {
+        "domain": ["domain:ru", "domain:xn--p1ai", "domain:su", "domain:yandex.net", "domain:yastatic.net"],
+        "outboundTag": "direct",
+        "type": "field"
+      },
+      {
+        "ip": ["geoip:ru", "geoip:private"],
+        "outboundTag": "direct",
+        "type": "field"
+      }
+    ]
+  },
+  "tun": { "enable": true, "mtu": 1280 }
+}
