@@ -1,0 +1,78 @@
+{
+    "log": {
+	"loglevel": "warning"
+    },
+    "inbounds": [
+	{
+	    "port": 443,
+	    "protocol": "vless",
+	    "settings": {
+		"clients": [		], // clients for using vless
+		"decryption": "none"
+	    },
+	    "streamSettings": {
+		"network": "tcp",
+		"security": "reality",
+		"realitySettings": {
+		    "show": false,
+		    "dest": "",           // destination site
+		    "xver": 0,
+		    "serverNames": [   ], // all server names
+		    "privateKey": "",     // private key
+		    "minClientVer": "",
+		    "maxClientVer": "",
+		    "maxTimeDiff": 0,
+		    "shortIds": [   ]    // short IDs
+		}
+	    }
+	},
+	{
+	  "listen": "127.0.0.1",
+	    "port": 10000,
+	    "protocol": "vless",
+	    "settings": {
+		"clients": [           ], // clients for using vless + tls
+		"decryption": "none"
+	    },
+	    "streamSettings": {
+		"network": "ws",
+		"wsSettings": {
+		    "path": "/ws"
+		}
+	    }  
+	},
+	{
+	    "port": 54321, 
+	    "protocol": "shadowsocks",
+	    "tag": "ss-inbound",
+	    "settings": {
+		"method": "2022-blake3-aes-128-gcm",
+		"password": "",         // password for using shadowsocks
+		"network": "tcp,udp"
+	    }
+	}
+    ],
+    "outbounds": [
+	{
+	    "protocol": "freedom",
+	    "tag": "direct",
+	    "settings" : {
+		"domainStrategy": "UseIPv4"
+	    }
+	},
+	{
+	    "protocol": "blackhole",
+	    "tag": "block"
+	}
+    ],
+    "routing": {
+	"domainStrategy": "AsIs",
+	"rules": [
+	    {
+		"type": "field",
+		"ip": ["geoip:private"],
+		"outboundTag": "block"
+	    }
+	]
+    }
+}
