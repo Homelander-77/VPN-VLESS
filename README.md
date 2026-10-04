@@ -147,6 +147,78 @@ Both client configs use the same routing rules:
 
 This keeps local services fast and reduces the load on the server.
 
+## VpnsStats
+
+However, you have a work machine with proxy through the vps. But if not only you use it, maybe it will be better to install network statistic, where you can see usage of each member.
+
+```bash
+sudo install -m 755 ./vpnstat/vpnstat.sh /usr/local/bin/vpnstat && vpnstat install
+```
+It shows traffic per device (per xray client), keeps monthly and daily history, and can show live speed.
+
+### Requirements
+
+Each client in the server config needs its own `email`, which is used as the device name:
+
+```json
+"clients": [
+  { "id": "...", "email": "macbook" },
+  { "id": "...", "email": "iphone" }
+]
+```
+
+Enable stats and the API in the top level of `/usr/local/etc/xray/config.json`:
+
+```json
+"stats": {},
+"api": { "tag": "api", "listen": "127.0.0.1:10085", "services": ["StatsService"] },
+"policy": { "levels": { "0": { "statsUserUplink": true, "statsUserDownlink": true } } },
+```
+
+Then check the config and restart xray:
+
+```bash
+sudo xray run -test -c /usr/local/etc/xray/config.json && sudo systemctl restart xray
+```
+
+### Usage
+
+| Command | Description |
+|---|---|
+| `vpnstat` | current month by device |
+| `vpnstat today` / `yesterday` | one day by device |
+| `vpnstat 2026-10-04` | a specific day |
+| `vpnstat 2026-09` | a specific month |
+| `vpnstat days [N]` | daily totals for the last N days (default 14) |
+| `vpnstat months` | monthly totals |
+| `vpnstat live [sec]` | live speed per device, Ctrl+C to exit |
+
+```
+  VPN traffic · October 2026
+  DEVICE            ↑ SENT    ↓ RECEIVED         TOTAL   SHARE
+  ws-owner          1.5 MB       91.7 MB       93.2 MB    67% █████████████░░░░░░░
+  mac               2.7 MB       28.2 MB       30.9 MB    22% ████░░░░░░░░░░░░░░░░
+  ИТОГО             4.2 MB      119.9 MB      124.1 MB
+```
+
+### How it works
+
+xray keeps counters in memory and resets them on every restart. `vpnstat install` makes the history persistent:
+
+- a cron job collects the counters every 10 minutes (plus 23:59, so late traffic stays in the right day);
+- a systemd hook saves them before xray stops or restarts, so nothing is lost.
+
+Data is stored in `/var/lib/vpnstat/` (root only). History starts from the moment you run `vpnstat install`.
+
+### Uninstall
+
+```bash
+vpnstat uninstall
+sudo rm /usr/local/bin/vpnstat
+```
+
+Saved statistics stay in `/var/lib/vpnstat/`. Delete them manually if you don't need them.
+
 ## Notes
 
 - **MTU** is set to `1280` in TUN mode. If some websites load slowly or do not load at all, try a lower value.
